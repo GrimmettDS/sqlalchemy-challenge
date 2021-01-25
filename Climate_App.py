@@ -26,11 +26,12 @@ app = Flask(__name__)
 def welcome():
     """List all available api routes."""
     return(
-        f"/api/v1.0/precipitation<br/><br/>"
-        f"/api/v1.0/stations<br/><br/>"
-        f"/api/v1.0/tobs<br/><br/>"
-        f"/api/v1.0/&ltstart&gt</br>"
-        f"/api/v1.0/&ltstart&gt&&ltend&gt</br>"
+        f"<h1>Welcome to the Climate App API</h1>"
+        f"/api/v1.0/precipitation<p>"
+        f"/api/v1.0/stations<p>"
+        f"/api/v1.0/tobs<p>"
+        f"/api/v1.0/&ltstart&gt - (Please use yyyy-mm-dd format)<p>"
+        f"/api/v1.0/&ltstart&gt&&ltend&gt - (Please use 'yyyy-mm-dd & yyyy-mm-dd' format)<p>"
     )
 
 begin_date = dt.date(2017, 8, 23) - dt.timedelta(days=365)
@@ -91,13 +92,12 @@ def tobs():
     past_year = dt.datetime.strptime(recent_date, "%Y-%m-%d") - dt.timedelta(days=365)  
     
     # Query the dates and temperature observations of the most active station for the last year of data.
-
     most_active_station = session.query(Measurement.station, Measurement.date, Measurement.tobs).filter(Measurement.date >= past_year).order_by(Measurement.date).all()
     station_list = list(most_active_station)
     
     session.close()
 
-    #Return a JSON list of temperature observations (TOBS) for the previous year.
+    # Return a JSON list of temperature observations (TOBS) for the previous year.
     return jsonify(station_list)
 
 
@@ -106,9 +106,11 @@ def start(start):
     
     session = Session(engine)
 
+    # Return a JSON list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range.
     recent_date = session.query(Measurement.date).order_by(Measurement.date.desc()).first()
     recent_date = recent_date[0]
     
+    # When given the start only, calculate TMIN, TAVG, and TMAX for all dates greater than and equal to the start date.
     min_temp = session.query(Measurement.tobs, func.min(Measurement.tobs)).filter(Measurement.date.between (start, recent_date))
     avg_temp = session.query(Measurement.tobs, func.avg(Measurement.tobs)).filter(Measurement.date.between (start, recent_date))
     max_temp = session.query(Measurement.tobs, func.max(Measurement.tobs)).filter(Measurement.date.between (start, recent_date))
@@ -116,7 +118,7 @@ def start(start):
     temp_list = {"Tmin": min_temp[0][0], "Tmax": max_temp[0][0], "Tavg": avg_temp[0][0]}
 
     start_calc = session.query(Measurement.date, func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).\
-    filter(Measurement.date >= start).group_by(Measurement.date).all()
+        filter(Measurement.date >= start).group_by(Measurement.date).all()
     
     calc_list = list(start_calc)
 
@@ -126,32 +128,25 @@ def start(start):
 
 
 @app.route("/api/v1.0/<start>&<end>")
-def start(start, end):
+def start_date(start, end):
     
     session = Session(engine)
     
+    # When given the start and the end date, calculate the TMIN, TAVG, and TMAX for dates between the start and end date inclusive.
     min_temp = session.query(Measurement.tobs, func.min(Measurement.tobs)).filter(Measurement.date.between (start, end))
     avg_temp = session.query(Measurement.tobs, func.avg(Measurement.tobs)).filter(Measurement.date.between (start, end))
-    max_temp = session.query(Measurement.tobs, func.max(Measurement.tobs)).filter(Measurement.date.between (start, end))
-
+    max_temp = session.query(Measurement.tobs, func.max(Measurement.tobs)).filter(Measurement.date.between (start, end))    
+    
     temp_list = {"Tmin": min_temp[0][0], "Tmax": max_temp[0][0], "Tavg": avg_temp[0][0]}
 
     start_calc = session.query(Measurement.date, func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).\
-    filter(Measurement.date.between(start, end).group_by(Measurement.date).all()
-    
+        filter(Measurement.date.between(start, end)).group_by(Measurement.date).all()
+
     calc_list = list(start_calc)
 
     session.close()
 
     return jsonify(temp_list, calc_list)
-    
-
-
-
-
-
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)
