@@ -27,7 +27,7 @@ def welcome():
     """List all available api routes."""
     return(
         f"<h1>Welcome to the Climate App API</h1>"
-        f"<h2>Date Ranges: August 24, 2016 to August 23, 2017"
+        f"<h2>Date Ranges: August 24, 2016 to August 23, 2017</h2>"
         f"/api/v1.0/precipitation<p>"
         f"/api/v1.0/stations<p>"
         f"/api/v1.0/tobs<p>"
