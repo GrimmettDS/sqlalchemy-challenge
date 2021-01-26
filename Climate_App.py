@@ -27,6 +27,7 @@ def welcome():
     """List all available api routes."""
     return(
         f"<h1>Welcome to the Climate App API</h1>"
+        f"<h2>Date Ranges: August 24, 2016 to August 23, 2017"
         f"/api/v1.0/precipitation<p>"
         f"/api/v1.0/stations<p>"
         f"/api/v1.0/tobs<p>"
@@ -117,14 +118,14 @@ def start(start):
 
     temp_list = {"Tmin": min_temp[0][0], "Tmax": max_temp[0][0], "Tavg": avg_temp[0][0]}
 
-    start_calc = session.query(Measurement.date, func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).\
-        filter(Measurement.date >= start).group_by(Measurement.date).all()
+    # start_calc = session.query(Measurement.date, func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).\
+        # filter(Measurement.date >= start).group_by(Measurement.date).all()
     
     calc_list = list(start_calc)
 
     session.close()
 
-    return jsonify(temp_list, calc_list)
+    return jsonify(temp_list)
 
 
 @app.route("/api/v1.0/<start>&<end>")
@@ -139,14 +140,14 @@ def start_date(start, end):
     
     temp_list = {"Tmin": min_temp[0][0], "Tmax": max_temp[0][0], "Tavg": avg_temp[0][0]}
 
-    start_calc = session.query(Measurement.date, func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).\
-        filter(Measurement.date.between(start, end)).group_by(Measurement.date).all()
+    # start_calc = session.query(Measurement.date, func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).\
+        # filter(Measurement.date.between(start, end)).group_by(Measurement.date).all()
 
-    calc_list = list(start_calc)
+    # calc_list = list(start_calc)
 
     session.close()
 
-    return jsonify(temp_list, calc_list)
+    return jsonify(temp_list)
 
 if __name__ == '__main__':
     app.run(debug=True)
