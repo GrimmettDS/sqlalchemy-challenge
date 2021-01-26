@@ -121,7 +121,7 @@ def start(start):
     # start_calc = session.query(Measurement.date, func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).\
         # filter(Measurement.date >= start).group_by(Measurement.date).all()
     
-    calc_list = list(start_calc)
+    # calc_list = list(start_calc)
 
     session.close()
 
